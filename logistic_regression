@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug  1 23:08:03 2017
+
+@author: rishi
+"""
+
+"""
+Logistic regression.
+we know linear regression which is used to predict the numeral value 
+while logistic regression is used for classifying things 
+formula for linear regression y=b0+b1*X1
+same formula can be used for logistic regression for that we have to change the value of y and use sigmoid function which is given by
+    p=1/(1+e^-y)
+    
+so the final formula that we have is 
+
+    ln(p/1-p) =b0+b1*x1
+"""
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Importing the dataset
+dataset = pd.read_csv('Social_Network_Ads.csv')
+X = dataset.iloc[:, [2,3]].values
+y = dataset.iloc[:, 4].values
+
+from sklearn.cross_validation import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25, random_state = 0)
+
+from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+X_test = sc_X.transform(X_test)
+
+from sklearn.linear_model import LogisticRegression
+
+classifier=LogisticRegression(random_state=0)
+classifier.fit(X_train,y_train)
+
+#this going to be the vector of predictions
+y_pred=classifier.predict(X_test)
+
+#now we will evaulate this by using confusion matrix .. this will contain correct and predicted values for the test values of x
+from sklearn.metrics import confusion_matrix
+
+cm=confusion_matrix(y_test,y_pred)
+
+# if the prediction boundary is straight one the the logistic regression classifier is the linear classifier
+
+from matplotlib.colors import ListedColormap
+X_set,y_set=X_train, y_train
+# we tell about xrange and yrange in the graph with step size and then we give this to logisitc regression to color the area as green and red
+
+X1,X2=np.meshgrid(np.arange(start=X_set[0].min()-1,stop=X_set[0].max()+1,step=0.01),np.arange(start=X_set[1].min()-1,stop=X_set[1].max()+1, step=0.01))
+
+plt.contourf(X1,X2,classifier.predict(np.array([X1.ravel(),X2.ravel()]).T).reshape(X1.shape),alpha=0.75,cmap=ListedColormap(('red','green')))
+
+plt.xlim(X1.min(),X1.max())
+plt.ylim(X2.min(),X2.max())
+
+for i,j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set==j,0],X_set[y_set==j,1],c=ListedColormap(('red','green'))(i),label=j)
+    
+plt.title("logistic regression")
+plt.xlabel('age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
+
+X_set,y_set=X_test, y_test
+
+X1,X2=np.meshgrid(np.arange(start=X_set[0].min()-1,stop=X_set[0].max()+1,step=0.01),np.arange(start=X_set[1].min()-1,stop=X_set[1].max()+1, step=0.01))
+
+plt.contourf(X1,X2,classifier.predict(np.array([X1.ravel(),X2.ravel()]).T).reshape(X1.shape),alpha=0.75,cmap=ListedColormap(('red','green')))
+
+plt.xlim(X1.min(),X1.max())
+plt.ylim(X2.min(),X2.max())
+
+for i,j in enumerate(np.unique(y_set)):
+    plt.scatter(X_set[y_set==j,0],X_set[y_set==j,1],c=ListedColormap(('red','green'))(i),label=j)
+    
+plt.title("logistic regression")
+plt.xlabel('age')
+plt.ylabel('Estimated Salary')
+plt.legend()
+plt.show()
